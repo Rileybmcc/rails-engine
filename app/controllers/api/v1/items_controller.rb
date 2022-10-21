@@ -43,31 +43,36 @@ module Api
       end
 
       def find_all
+        # require "pry"; binding.pry
         if (params[:min_price] != nil || params[:max_price] != nil)
-  require "pry"; binding.pry
-            if params[:min_price].to_i < 0 || params[:max_price].to_i <0
-              render json: {:data => {}, status: "error", code: 400, message: "Search Parameter Must Be Greater Than Zero"}
 
-            elsif params[:max_price] != nil && params[:min_price] != nil
-              valid_items_with_mm = Item.where("#{params[:min_price]} <= unit_price <= #{params[:max_price]}")
-              render json: {:data => valid_items_with_mm}
+          if params[:min_price].to_i < 0 || params[:max_price].to_i < 0
+            # render json: {:data => {}, status: "error", code: 400, message: "Search Parameter Must Be Greater Than Zero"}
+            render json: {:data => []}, status: 400, error: 'null'
 
-            elsif params[:name] != nil && params[:max_price] != nil
-  # require "pry"; binding.pry
-              render json: {:data => {}}, status: "error", code: 400, error: 'Cannot Search Both Name and By Price'
+          elsif params[:name] != nil && params[:max_price] != nil
+            # render json: {:data => {}, status: "error", code: 400}
+            # render json: {:data => [error: 400, error: 'null']}
+            render status: 400
 
-            elsif  params[:name] != nil && params[(:min_price)] != nil
-              render json: {:data => {}}, status: "error", code: 400, error: 'Cannot Search Both Name and By Price'
+          elsif params[:name] != nil && params[:min_price] != nil
+            render json: {:data => {}, status: "error", code: 400, error: 'Cannot Search Both Name and By Price'}
 
-            elsif params[:min_price]
-              valid_items_with_min = Item.where("unit_price >= #{params[:min_price]}")
-              render json: {:data => valid_items_with_min}
+          elsif params[:max_price] != nil && params[:min_price] != nil
+            # require "pry"; binding.pry
+            valid_items_with_mm = Item.where("#{params[:min_price]} <= unit_price <= #{params[:max_price]}")
+            render json: {:data => valid_items_with_mm}
 
-            elsif params[:max_price]
-              valid_items_with_max = Item.where("unit_price <= #{params[:max_price]}")
-              render json: {:data => valid_items_with_max}
 
-            end
+          elsif params[:min_price] != nil
+            valid_items_with_min = Item.where("unit_price >= #{params[:min_price]}")
+            render json: {:data => valid_items_with_min}
+
+          elsif params[:max_price] != nil
+            valid_items_with_max = Item.where("unit_price <= #{params[:max_price]}")
+            render json: {:data => valid_items_with_max}
+
+          end
         elsif params[:name] != nil
           matching_items = Item.where("name ILIKE ?", "%#{params[:name]}%")
           render json: {:data => matching_items}
