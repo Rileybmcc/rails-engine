@@ -69,7 +69,8 @@ module Api
             render json: {:data => valid_items_with_max}
 
           end
-
+        elsif params[:name] == "" || params[(:id && :name)] == nil
+            render status: 400
         elsif params[:name] != nil
           matching_items = Item.where("name ILIKE ?", "%#{params[:name]}%")
           render json: {:data => matching_items}
